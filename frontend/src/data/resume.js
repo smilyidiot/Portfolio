@@ -148,7 +148,7 @@ export const projects = [
   {
     name: "Country Population Finder",
     stack: "React.js & Node.js",
-    demo: "#",
+    demo: "https://vinayak01.ccbp.tech/",
     points: [
       "Responsive single-page app to search and browse countries with population data, using asynchronous data fetching for live results.",
       "Client-side live search and filtering, with responsive Bootstrap and CSS layouts for a consistent experience across devices.",
@@ -157,7 +157,7 @@ export const projects = [
   {
     name: "SIP & Investment Calculator",
     stack: "Python & React",
-    demo: "#",
+    demo: "https://smilyidiot.github.io/SIP_calculator/",
     points: [
       "Full-stack SIP and lump-sum investment calculator: a REST API computes compounding projections (total invested, estimated returns, future value) consumed by a React 18 (hooks) + Vite single-page app.",
       "Year-by-year breakdown and a hand-built SVG growth chart with light/dark themes, plus a client-side fallback so the UI works offline; backend math covered by pytest.",
