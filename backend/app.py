@@ -50,6 +50,10 @@ def send_email(name: str, email: str, message: str) -> bool:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            # Identify this client. urllib's default "Python-urllib" UA is
+            # rejected by Resend's Cloudflare layer; a descriptive app UA is
+            # the normal, honest fix.
+            "User-Agent": "VinayakPortfolioContactForm/1.0",
         },
         method="POST",
     )
