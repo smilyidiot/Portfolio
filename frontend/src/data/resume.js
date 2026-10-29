@@ -1,12 +1,8 @@
-// All portfolio content lives here so you can edit copy without touching
-// component code. Update the LinkedIn URL + email below to your real ones.
-
 export const profile = {
   name: "Vinayak Rachha",
   title: "Python Developer · Backend · React · Full Stack",
   location: "Prabhadevi, Mumbai, India",
   email: "vinayakrachha@gmail.com",
-  // TODO: replace with your real LinkedIn profile URL
   linkedin: "https://www.linkedin.com/in/r-vinayaka/",
   summary:
     "Python developer with 3+ years designing and shipping AI-driven applications, data pipelines, and analytics tools end to end. Strong in clean, tested, object-oriented Python with Pandas and NumPy for data wrangling, REST API design, SQL and NoSQL data modeling, and React front ends and dashboards. Hands-on with LLM/GenAI features — RAG, prompt engineering, and agent orchestration (function-calling and tool-use) over vector databases (Chroma) — and with resilient incremental ETL from third-party APIs and databases. Owns problems from design through testing, deployment (Docker, AWS, CI/CD), and clear, structured deliverables in Agile teams.",
@@ -18,7 +14,7 @@ export const skills = [
     items: [
       "Python (OOP, clean code, packaging)",
       "SQL",
-      "JavaScript",
+      "JavaScript (ES6+)",
       "Node.js",
     ],
   },
@@ -27,12 +23,12 @@ export const skills = [
     items: [
       "REST",
       "Flask",
+      "FastAPI",
       "Microservices",
       "Third-party API integration",
       "Async",
       "Multi-threading",
       "OAuth2.0 / SSO",
-      "Redis",
     ],
   },
   {
@@ -61,13 +57,11 @@ export const skills = [
   {
     group: "Agentic AI / LLM",
     items: [
-      "LangGraph",
-      "Agentic tool-use & function-calling",
-      "Multi-agent orchestration",
       "RAG",
       "AWS Bedrock (Claude)",
-      "Vector databases (Chroma)",
-      "Document parsing/OCR",
+      "Vector databases (ChromaDB)",
+      "LangGraph",
+      "Agentic tool-use",
     ],
   },
   {
