@@ -3,14 +3,17 @@
 Pure-Python (Flask), so it installs cleanly without compiled dependencies.
 In local dev the Vite server proxies /api/* here (see vite.config.js).
 
-Messages are appended to backend/messages.log for now. To actually email
-them, plug an SMTP or a service like Resend/SendGrid into `handle_message`.
+Every message is appended to backend/messages.log. If RESEND_API_KEY is set in
+the environment, it is also emailed via Resend — the same behaviour as the
+production Vercel function (api/contact.py), so local testing matches live.
 """
 from __future__ import annotations
 
 import json
 import logging
 import os
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
@@ -20,13 +23,50 @@ app = Flask(__name__)
 CORS(app)  # allow the frontend origin to call the API in production
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "messages.log")
+CONTACT_TO = os.environ.get("CONTACT_TO", "vinayakrachha@gmail.com")
+CONTACT_FROM = os.environ.get("CONTACT_FROM", "Portfolio Contact <onboarding@resend.dev>")
 
 
-def handle_message(name: str, email: str, message: str) -> None:
-    """Persist an incoming contact message.
+def send_email(name: str, email: str, message: str) -> bool:
+    """Email the message via Resend if an API key is configured.
 
-    Swap this out for real email delivery when you're ready to go live.
+    Returns True when there is nothing to send (no key) or the send succeeds,
+    False only when a configured send fails.
     """
+    api_key = os.environ.get("RESEND_API_KEY")
+    if not api_key:
+        return True
+
+    payload = {
+        "from": CONTACT_FROM,
+        "to": [CONTACT_TO],
+        "reply_to": email,
+        "subject": f"Portfolio contact from {name}",
+        "text": f"From: {name} <{email}>\n\n{message}",
+    }
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            resp.read()
+        return True
+    except urllib.error.HTTPError as exc:
+        logging.error("Resend HTTP %s: %s", exc.code, exc.read().decode("utf-8", "replace"))
+        return False
+    except Exception:  # noqa: BLE001
+        logging.exception("Resend request failed")
+        return False
+
+
+def handle_message(name: str, email: str, message: str) -> bool:
+    """Record an incoming contact message, then email it if configured."""
     entry = {
         "at": datetime.now(timezone.utc).isoformat(),
         "name": name,
@@ -36,6 +76,7 @@ def handle_message(name: str, email: str, message: str) -> None:
     with open(LOG_PATH, "a", encoding="utf-8") as fh:
         fh.write(json.dumps(entry) + "\n")
     logging.info("Contact message from %s <%s>", name, email)
+    return send_email(name, email, message)
 
 
 @app.get("/api/health")
@@ -58,10 +99,13 @@ def contact():
         return jsonify(error="Message is too long (5000 char max)."), 400
 
     try:
-        handle_message(name, email, message)
+        sent = handle_message(name, email, message)
     except Exception:  # noqa: BLE001 - don't leak internals to the client
         logging.exception("Failed to store contact message")
         return jsonify(error="Could not send message, please try again later."), 500
+
+    if not sent:
+        return jsonify(error="Could not send message, please try again later."), 502
 
     return jsonify(ok=True), 201
 

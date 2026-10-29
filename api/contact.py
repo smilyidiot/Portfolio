@@ -4,16 +4,66 @@ Deployed automatically by Vercel at the path /api/contact (the file name maps
 to the route). Uses only the Python standard library, so it needs no
 dependencies and starts fast — no persistent server, no cold-start wait.
 
-Serverless filesystems are ephemeral and read-only, so messages are written to
-the function logs (stdout) rather than a file. To actually deliver mail, call
-an email API here (e.g. Resend / SendGrid) using an env var for the key.
+Email delivery uses Resend (https://resend.com) via a plain HTTPS call. Set
+these environment variables in the Vercel project settings:
 
-For local development the Flask app in backend/app.py serves the same endpoint
-(the Vite dev server proxies /api there); this function is what runs in
-production on Vercel.
+  RESEND_API_KEY   (required to actually send)  e.g. re_xxx
+  CONTACT_TO       (optional) the address that receives messages
+  CONTACT_FROM     (optional) the "from" address; defaults to Resend's shared
+                   sender, which can only deliver to your own Resend account
+                   email until you verify a domain.
+
+If RESEND_API_KEY is not set, the message is just logged (visible in the Vercel
+function logs) and the form still reports success.
 """
 from http.server import BaseHTTPRequestHandler
 import json
+import os
+import urllib.error
+import urllib.request
+
+CONTACT_TO = os.environ.get("CONTACT_TO", "vinayakrachha@gmail.com")
+CONTACT_FROM = os.environ.get("CONTACT_FROM", "Portfolio Contact <onboarding@resend.dev>")
+
+
+def send_email(name, email, message):
+    """Send the contact message via Resend. Returns True on success.
+
+    When no API key is configured, logs and returns True so the form keeps
+    working while email is being set up.
+    """
+    api_key = os.environ.get("RESEND_API_KEY")
+    if not api_key:
+        print(f"[contact] (no RESEND_API_KEY set) {name} <{email}>: {message}")
+        return True
+
+    payload = {
+        "from": CONTACT_FROM,
+        "to": [CONTACT_TO],
+        "reply_to": email,
+        "subject": f"Portfolio contact from {name}",
+        "text": f"From: {name} <{email}>\n\n{message}",
+    }
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            resp.read()
+        return True
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", "replace")
+        print(f"[contact] Resend HTTP {exc.code}: {detail}")
+        return False
+    except Exception as exc:  # noqa: BLE001 - don't leak internals to the client
+        print(f"[contact] Resend request failed: {exc}")
+        return False
 
 
 class handler(BaseHTTPRequestHandler):
@@ -36,8 +86,8 @@ class handler(BaseHTTPRequestHandler):
         if len(message) > 5000:
             return self._json(400, {"error": "Message is too long (5000 char max)."})
 
-        # Shows up in the Vercel function logs. Swap for an email API to deliver.
-        print(f"Contact message from {name} <{email}>: {message}")
+        if not send_email(name, email, message):
+            return self._json(502, {"error": "Could not send message, please try again later."})
         return self._json(201, {"ok": True})
 
     def do_GET(self):  # noqa: N802 - simple health check
