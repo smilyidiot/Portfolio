@@ -3,11 +3,11 @@
 export const profile = {
  name: "Vinayak Rachha",
  title: "Python Developer · Backend · React · Full Stack",
- location: "Prabhadevi, Mumbai, India",
+ location: "Mumbai, India",
  email: "vinayakrachha@gmail.com",
  linkedin: "https://www.linkedin.com/in/r-vinayaka/",
  summary:
-  "Python developer with 3+ years designing and shipping AI-driven applications, data pipelines, and analytics tools end to end. Strong in clean, tested, object-oriented Python with Pandas and NumPy for data wrangling, REST API design, SQL and NoSQL data modeling, and React front ends and dashboards. Hands-on with LLM/GenAI features — RAG, prompt engineering, and agent orchestration (function-calling and tool-use) over vector databases (Chroma) — and with resilient incremental ETL from third-party APIs and databases. Owns problems from design through testing, deployment (Docker, AWS, CI/CD), and clear, structured deliverables in Agile teams.",
+  "Python developer around 4 years designing and shipping AI-driven applications, data pipelines, and analytics tools end to end. Strong in clean, tested, object-oriented Python with Pandas and NumPy for data wrangling, REST API design, SQL and NoSQL data modeling, and React front ends and dashboards. Hands-on with LLM/GenAI features — RAG, prompt engineering, and agent orchestration (function-calling and tool-use) over vector databases (Chroma) — and with resilient incremental ETL from third-party APIs and databases. Owns problems from design through testing, deployment (Docker, AWS, CI/CD), and clear, structured deliverables in Agile teams.",
 };
 
 export const skills = [

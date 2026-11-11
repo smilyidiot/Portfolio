@@ -9,9 +9,9 @@ export default function EducationPage() {
         subtitle="Academic background and languages."
       />
 
-      <p className="mb-6 max-w-3xl border-l-2 border-brand/40 pl-4 text-sm italic leading-relaxed text-slate-500 dark:border-brand-dark/40 dark:text-slate-400">
+      {/* <p className="mb-6 max-w-3xl border-l-2 border-brand/40 pl-4 text-sm italic leading-relaxed text-slate-500 dark:border-brand-dark/40 dark:text-slate-400">
         {background}
-      </p>
+      </p> */}
 
       <div className="space-y-5">
         {education.map((e) => (

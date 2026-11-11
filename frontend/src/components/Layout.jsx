@@ -40,8 +40,8 @@ export default function Layout() {
       <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-slate-50/80 backdrop-blur dark:border-slate-800/60 dark:bg-slate-950/80">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
           <Link to="/" className="text-lg font-extrabold tracking-tight">
-            {profile.name.split(' ')[0]}
-            <span className="text-brand dark:text-brand-dark">.</span>
+            {profile.name}
+            {/* <span className="text-brand dark:text-brand-dark">.</span> */}
           </Link>
 
           <div className="flex items-center gap-2">
